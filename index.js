@@ -7,6 +7,8 @@ const {
     LAMPORTS_PER_SOL
 } = require("@solana/web3.js");
 
+const prompt = require('prompt-sync')();
+
 // Create a new keypair
 const newPair = new Keypair();
 
@@ -37,7 +39,7 @@ const getWalletBalance = async () => {
     }
 };
 
-const airDropSol = async () => {
+const airDropSol = async (walletKey) => {
     try {
         // Connect to the Devnet and make a wallet from privateKey
         const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
@@ -46,7 +48,7 @@ const airDropSol = async () => {
         // Request airdrop of 2 SOL to the wallet
         console.log("Airdropping some SOL to my wallet!");
         const fromAirDropSignature = await connection.requestAirdrop(
-            new PublicKey(myWallet.publicKey),
+            new PublicKey(walletKey),
             2 * LAMPORTS_PER_SOL
         );
         await connection.confirmTransaction(fromAirDropSignature);
@@ -58,7 +60,13 @@ const airDropSol = async () => {
 // Show the wallet balance before and after airdropping SOL
 const mainFunction = async () => {
     await getWalletBalance();
-    await airDropSol();
+    const key = prompt('Enter your key: ')
+    if(key != null){
+        await airDropSol(key);
+    }
+    else{
+        await airDropSol(myWallet.publicKey);
+    }
     await getWalletBalance();
 }
 
